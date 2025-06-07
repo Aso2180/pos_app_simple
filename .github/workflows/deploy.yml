@@ -22,7 +22,7 @@ jobs:
       - name: Deploy to Azure Container Apps
         uses: azure/CLI@v1
         with:
-          azcliversion: 2.53.0
+          # azcliversion: 2.55.0
           inlineScript: |
             RG="pos-mvp-rg"
             ENV="pos-mvp-env"
