@@ -1,0 +1,62 @@
+# .github/workflows/deploy.yml
+name: deploy-to-aca
+
+on:
+  workflow_run:
+    workflows: ["build-and-push"]   # ← ci.yml の name と一致
+    types: [completed]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      # (1) Azure にログイン
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # (2) CLI で Container Apps を作成／更新
+      - name: Deploy to Azure Container Apps
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.53.0
+          inlineScript: |
+            RG="pos-mvp-rg"
+            ENV="pos-mvp-env"
+            REGISTRY="${{ secrets.ACR_LOGIN_SERVER }}"
+            USER="${{ secrets.ACR_USERNAME }}"
+            PASS="${{ secrets.ACR_PASSWORD }}"
+            TAG="${{ github.event.workflow_run.head_sha }}"
+
+            # ---------- backend ----------
+            if az containerapp show -g $RG -n pos-backend &>/dev/null; then
+              az containerapp update \
+                -g $RG -n pos-backend \
+                --image $REGISTRY/pos-backend:$TAG \
+                --registry-server $REGISTRY --registry-username $USER --registry-password $PASS
+            else
+              az containerapp create \
+                -g $RG -n pos-backend --environment $ENV \
+                --image $REGISTRY/pos-backend:$TAG \
+                --target-port 8000 --ingress internal \
+                --registry-server $REGISTRY --registry-username $USER --registry-password $PASS \
+                --env-vars DB_USER=root DB_PASSWORD='limit500?' DB_HOST=pos-db DB_PORT=3306 DB_NAME=pos_app_db
+            fi
+
+            # ---------- frontend ----------
+            if az containerapp show -g $RG -n pos-frontend &>/dev/null; then
+              az containerapp update \
+                -g $RG -n pos-frontend \
+                --image $REGISTRY/pos-frontend:$TAG \
+                --registry-server $REGISTRY --registry-username $USER --registry-password $PASS
+            else
+              az containerapp create \
+                -g $RG -n pos-frontend --environment $ENV \
+                --image $REGISTRY/pos-frontend:$TAG \
+                --target-port 3000 --ingress external \
+                --registry-server $REGISTRY --registry-username $USER --registry-password $PASS \
+                --env-vars NEXT_PUBLIC_API_URL=http://pos-backend:8000
+            fi
