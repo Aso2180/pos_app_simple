@@ -10,4 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 2) アプリ本体
 COPY app ./app
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+# backend/Dockerfile 末尾を変更
+CMD python -m app.init_data && uvicorn app.main:app --host 0.0.0.0 --port 8000
