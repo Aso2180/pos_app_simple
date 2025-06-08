@@ -60,3 +60,19 @@ jobs:
                 --registry-server $REGISTRY --registry-username $USER --registry-password $PASS \
                 --env-vars NEXT_PUBLIC_API_URL=http://pos-backend:8000
             fi
+
+            # deploy.yml の inlineScript 末尾に追記
+            # ---------- database ----------
+            if az containerapp show -g $RG -n pos-db &>/dev/null; then
+              echo "pos-db already exists"
+            else
+              az containerapp create \
+                -g $RG -n pos-db --environment $ENV \
+                --image mysql:8.0 \
+                --target-port 3306 --ingress internal \
+                --cpu 1 --memory 2Gi \
+                --env-vars MYSQL_ROOT_PASSWORD='limit500?' \
+                           MYSQL_DATABASE=pos_app_db \
+                --min-replicas 1
+            fi
+
