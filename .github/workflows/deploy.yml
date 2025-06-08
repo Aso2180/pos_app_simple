@@ -24,6 +24,8 @@ jobs:
         with:
           # azcliversion: 2.55.0
           inlineScript: |
+            set -eox pipefail
+
             RG="pos-mvp-rg"
             ENV="pos-mvp-env"
             REGISTRY="${{ secrets.ACR_LOGIN_SERVER }}"
@@ -35,30 +37,38 @@ jobs:
             if az containerapp show -g $RG -n pos-backend &>/dev/null; then
               az containerapp update \
                 -g $RG -n pos-backend \
-                --image $REGISTRY/pos-backend:$TAG \
-                --registry-server $REGISTRY --registry-username $USER --registry-password $PASS
+                --image $REGISTRY/pos-backend:$TAG
             else
               az containerapp create \
                 -g $RG -n pos-backend --environment $ENV \
                 --image $REGISTRY/pos-backend:$TAG \
                 --target-port 8000 --ingress internal \
-                --registry-server $REGISTRY --registry-username $USER --registry-password $PASS \
                 --env-vars DB_USER=root DB_PASSWORD='limit500?' DB_HOST=pos-db DB_PORT=3306 DB_NAME=pos_app_db
+
+              az containerapp registry set \
+                -g $RG -n pos-backend \
+                --server $REG \
+                --username "${{ secrets.ACR_USERNAME }}" \
+                --password "${{ secrets.ACR_PASSWORD }}"
             fi
 
             # ---------- frontend ----------
             if az containerapp show -g $RG -n pos-frontend &>/dev/null; then
               az containerapp update \
                 -g $RG -n pos-frontend \
-                --image $REGISTRY/pos-frontend:$TAG \
-                --registry-server $REGISTRY --registry-username $USER --registry-password $PASS
+                --image $REGISTRY/pos-frontend:$TAG
             else
               az containerapp create \
                 -g $RG -n pos-frontend --environment $ENV \
                 --image $REGISTRY/pos-frontend:$TAG \
                 --target-port 3000 --ingress external \
-                --registry-server $REGISTRY --registry-username $USER --registry-password $PASS \
                 --env-vars NEXT_PUBLIC_API_URL=http://pos-backend:8000
+
+              az containerapp registry set \
+                -g $RG -n pos-frontend \
+                --server $REG \
+                --username "${{ secrets.ACR_USERNAME }}" \
+                --password "${{ secrets.ACR_PASSWORD }}"
             fi
 
             # deploy.yml の inlineScript 末尾に追記
