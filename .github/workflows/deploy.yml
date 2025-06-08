@@ -62,7 +62,7 @@ jobs:
                 -g $RG -n pos-frontend --environment $ENV \
                 --image $REGISTRY/pos-frontend:$TAG \
                 --target-port 3000 --ingress external \
-                --env-vars NEXT_PUBLIC_API_URL=https://pos-backend.<hash>.japaneast.azurecontainerapps.io
+                --env-vars NEXT_PUBLIC_API_URL=https://pos-backend.internal.ashystone-fb341e56.japaneast.azurecontainerapps.io
 
               az containerapp registry set \
                 -g $RG -n pos-frontend \
