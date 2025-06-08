@@ -42,7 +42,7 @@ jobs:
               az containerapp create \
                 -g $RG -n pos-backend --environment $ENV \
                 --image $REGISTRY/pos-backend:$TAG \
-                --target-port 8000 --ingress internal \
+                --target-port 8000 --ingress external \
                 --env-vars DB_USER=root DB_PASSWORD='limit500?' DB_HOST=pos-db DB_PORT=3306 DB_NAME=pos_app_db
 
               az containerapp registry set \
@@ -62,7 +62,7 @@ jobs:
                 -g $RG -n pos-frontend --environment $ENV \
                 --image $REGISTRY/pos-frontend:$TAG \
                 --target-port 3000 --ingress external \
-                --env-vars NEXT_PUBLIC_API_URL=http://pos-backend:8000
+                --env-vars NEXT_PUBLIC_API_URL=https://pos-backend.<hash>.japaneast.azurecontainerapps.io
 
               az containerapp registry set \
                 -g $RG -n pos-frontend \
