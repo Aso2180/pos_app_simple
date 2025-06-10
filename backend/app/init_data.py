@@ -20,6 +20,7 @@ def main() -> None:
     db = SessionLocal()
     for p in INIT_PRODUCTS:
         exists = db.query(Product).filter(Product.code == p["code"]).first()
+        print(f"code={p['code']} exists={exists}")
         if exists:
             print(f"▶ 商品 {p['code']} は既に登録済み ― スキップ")
             continue

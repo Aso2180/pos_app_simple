@@ -37,7 +37,7 @@ services:
     depends_on:
       - backend
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000   # ← フロント→バックエンド
+      - NEXT_PUBLIC_API_URL=https://pos-backend.ashystone-fb341e56.japaneast.azurecontainerapps.io   # ← フロント→バックエンド
     ports:
       - "3000:3000"                        # ホスト→コンテナ (Web)
 
