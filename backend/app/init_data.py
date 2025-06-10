@@ -6,8 +6,8 @@ Base.metadata.create_all(bind=engine)
 # backend/app/init_data.py
 from sqlalchemy.exc import IntegrityError
 
-from .db import SessionLocal
-from .models import Product
+from app.db import SessionLocal
+from app.models import Product
 
 INIT_PRODUCTS = [
     {"code": "4901681328401", "name": "P-B3A12-BK", "price": 2000},

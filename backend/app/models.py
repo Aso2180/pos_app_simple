@@ -15,7 +15,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-from .db import Base
+from app.db import Base
 
 # ────────────────────────────────
 # 商品マスタ (PRD_MST)
