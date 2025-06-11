@@ -3,8 +3,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# 1) 根本証明書をコピー
-COPY DigiCertGlobalRootCA.crt.pem /usr/local/share/ca-certificates/
+# 1) Microsoft が公開しているルート CA を追加
+ADD https://cacerts.digicert.com/BaltimoreCyberTrustRoot.crt.pem /usr/local/share/ca-certificates/baltimore.pem
 RUN update-ca-certificates
 
 # 2) 依存インストール

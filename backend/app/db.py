@@ -8,7 +8,7 @@ import os
 # ────────────────────────────────
 DB_USER = os.getenv("DB_USER", "root")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "limit500?")
-DB_HOST = os.getenv("DB_HOST", "db")
+DB_HOST = os.getenv("DB_HOST", "pos-db")
 DB_PORT = os.getenv("DB_PORT", "3306")
 DB_NAME = os.getenv("DB_NAME", "pos_app_db")
 
@@ -19,14 +19,14 @@ DATABASE_URL = (
 # ────────────────────────────────
 # SQLAlchemy
 # ────────────────────────────────
+SSL_CA_PATH = "/etc/ssl/certs/baltimore.pem"      # もしくは /usr/local/share/ca-certificates/baltimore.pem
+
 engine = create_engine(
     DATABASE_URL,
-    echo=True,
+    echo=False,
     future=True,
     connect_args={
-        "ssl": {
-            "ca": "/etc/ssl/certs/DigiCertGlobalRootCA.crt.pem"
-        }
+        "ssl": {"ca": SSL_CA_PATH}
     }
 )
 
