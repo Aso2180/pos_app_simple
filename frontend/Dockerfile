@@ -1,18 +1,26 @@
-# frontend/Dockerfile
-FROM node:20-alpine
+#####################  1) Build Stage  #####################
+FROM node:20-alpine AS builder
 
-# 作業ディレクトリ
 WORKDIR /app
 
-# 依存インストール
-COPY package.json package-lock.json* ./
-RUN npm install
+# 依存だけ先にコピーするとキャッシュが効く
+COPY package*.json ./
+RUN npm ci                       # production 依存のみインストール
 
-# アプリ本体
+# アプリ本体をコピーしてビルド
 COPY . .
+RUN npm run build                # .next/ を生成
 
-# Next.js dev サーバ（開発用）
-CMD ["npm", "run", "dev"]
+#####################  2) Runtime Stage ####################
+FROM node:20-alpine AS runtime
+WORKDIR /app
 
-# ポート 3000 を明示（任意）
+# 本番モード
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# builder の成果物だけ取り込む
+COPY --from=builder /app .
+
 EXPOSE 3000
+CMD ["npm", "start"]             # = next start
