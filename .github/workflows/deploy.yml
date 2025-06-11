@@ -3,7 +3,7 @@ name: deploy-to-aca
 
 on:
   workflow_run:
-    workflows: ["build-and-push"]   # ← ci.yml の name と一致
+    workflows: ["build-and-push"]     # ci.yml の name と一致
     types: [completed]
 
 jobs:
@@ -12,77 +12,78 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # (1) Azure にログイン
+      # 1) Azure にログイン
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # (2) CLI で Container Apps を作成／更新
+      # 2) Container Apps へデプロイ
       - name: Deploy to Azure Container Apps
         uses: azure/CLI@v1
         with:
-          # azcliversion: 2.55.0
+          azcliversion: 2.72.0            # GA 最新
           inlineScript: |
             set -eox pipefail
 
             RG="pos-mvp-rg"
             ENV="pos-mvp-env"
-            REGISTRY="${{ secrets.ACR_LOGIN_SERVER }}"
+            REG="${{ secrets.ACR_LOGIN_SERVER }}"
             USER="${{ secrets.ACR_USERNAME }}"
             PASS="${{ secrets.ACR_PASSWORD }}"
             TAG="${{ github.event.workflow_run.head_sha }}"
 
-            # ---------- backend ----------
+            # ======= Backend ===================================================
             if az containerapp show -g $RG -n pos-backend &>/dev/null; then
-              az containerapp update \
-                -g $RG -n pos-backend \
-                --image $REGISTRY/pos-backend:$TAG
+              az containerapp update -g $RG -n pos-backend --image $REG/pos-backend:$TAG
             else
               az containerapp create \
-                -g $RG -n pos-backend --environment $ENV \
-                --image $REGISTRY/pos-backend:$TAG \
+                -g $RG -n pos-backend -e $ENV \
+                --image $REG/pos-backend:$TAG \
                 --target-port 8000 --ingress external \
-                --env-vars DB_USER=root DB_PASSWORD='limit500?' DB_HOST=pos-db DB_PORT=3306 DB_NAME=pos_app_db
-
-              az containerapp registry set \
-                -g $RG -n pos-backend \
-                --server $REG \
-                --username "${{ secrets.ACR_USERNAME }}" \
-                --password "${{ secrets.ACR_PASSWORD }}"
+                --min-replicas 1 \
+                --cpu 0.5 --memory 1Gi \
+                --env-vars DB_USER="adminuser@posmysqlserver-sea" \
+                           DB_PASSWORD="limit500?" \
+                           DB_HOST="posmysqlserver-sea.mysql.database.azure.com" \
+                           DB_PORT=3306 \
+                           DB_NAME=pos_app_db
             fi
+            az containerapp registry set -g $RG -n pos-backend \
+              --server $REG --username $USER --password $PASS
 
-            # ---------- frontend ----------
+            # BACKEND_FQDN を取得
+            BACK_FQDN=$(az containerapp show -g $RG -n pos-backend \
+              --query properties.configuration.ingress.fqdn -o tsv)
+
+            # ======= Frontend ==================================================
             if az containerapp show -g $RG -n pos-frontend &>/dev/null; then
-              az containerapp update \
-                -g $RG -n pos-frontend \
-                --image $REGISTRY/pos-frontend:$TAG
+              az containerapp update -g $RG -n pos-frontend --image $REG/pos-frontend:$TAG
             else
               az containerapp create \
-                -g $RG -n pos-frontend --environment $ENV \
-                --image $REGISTRY/pos-frontend:$TAG \
+                -g $RG -n pos-frontend -e $ENV \
+                --image $REG/pos-frontend:$TAG \
                 --target-port 3000 --ingress external \
-                --env-vars NEXT_PUBLIC_API_URL=https://pos-backend.internal.ashystone-fb341e56.japaneast.azurecontainerapps.io
-
-              az containerapp registry set \
-                -g $RG -n pos-frontend \
-                --server $REG \
-                --username "${{ secrets.ACR_USERNAME }}" \
-                --password "${{ secrets.ACR_PASSWORD }}"
+                --min-replicas 1 \
+                --cpu 0.5 --memory 1Gi \
+                --env-vars "NEXT_PUBLIC_API_URL=https://$BACK_FQDN"
             fi
+            # env だけ更新（create 時は上書きされるが update 分岐用）
+            az containerapp update -g $RG -n pos-frontend \
+              --set-env-vars "NEXT_PUBLIC_API_URL=https://$BACK_FQDN"
+            az containerapp registry set -g $RG -n pos-frontend \
+              --server $REG --username $USER --password $PASS
 
-            # deploy.yml の inlineScript 末尾に追記
-            # ---------- database ----------
+            # ======= MySQL (internal) ==========================================
             if az containerapp show -g $RG -n pos-db &>/dev/null; then
               echo "pos-db already exists"
             else
               az containerapp create \
-                -g $RG -n pos-db --environment $ENV \
+                -g $RG -n pos-db -e $ENV \
                 --image mysql:8.0 \
                 --target-port 3306 --ingress internal \
-                --cpu 1 --memory 2Gi \
-                --env-vars MYSQL_ROOT_PASSWORD='limit500?' \
-                           MYSQL_DATABASE=pos_app_db \
-                --min-replicas 1
+                --min-replicas 1 \
+                --cpu 0.5 --memory 1Gi \
+                --env-vars MYSQL_ROOT_PASSWORD="limit500?" \
+                           MYSQL_DATABASE=pos_app_db
             fi
-
