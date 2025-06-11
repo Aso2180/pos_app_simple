@@ -19,7 +19,16 @@ DATABASE_URL = (
 # ────────────────────────────────
 # SQLAlchemy
 # ────────────────────────────────
-engine = create_engine(DATABASE_URL, echo=True, future=True)
+engine = create_engine(
+    DATABASE_URL,
+    echo=True,
+    future=True,
+    connect_args={
+        "ssl": {
+            "ca": "/etc/ssl/certs/DigiCertGlobalRootCA.crt.pem"
+        }
+    }
+)
 
 SessionLocal = sessionmaker(
     bind=engine,
