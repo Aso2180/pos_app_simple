@@ -5,11 +5,11 @@ WORKDIR /app
 
 # 依存だけ先にコピーするとキャッシュが効く
 COPY package*.json ./
-RUN npm ci                       # production 依存のみインストール
+RUN npm ci          
 
 # アプリ本体をコピーしてビルド
 COPY . .
-RUN npm run build                # .next/ を生成
+RUN npm run build  
 
 #####################  2) Runtime Stage ####################
 FROM node:20-alpine AS runtime
@@ -23,4 +23,4 @@ ENV PORT=3000
 COPY --from=builder /app .
 
 EXPOSE 3000
-CMD ["npm", "start"]             # = next start
+CMD ["npm", "start"]
