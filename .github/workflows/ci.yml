@@ -27,6 +27,7 @@ jobs:
           context: ./backend
           push: true
           tags: ${{ env.REGISTRY }}/pos-backend:${{ env.IMAGE_TAG }}
+          no-cache: true          # ← 1 回だけ付ける
 
       - name: Build & push frontend
         uses: docker/build-push-action@v5
