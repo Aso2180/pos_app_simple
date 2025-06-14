@@ -24,7 +24,8 @@ app = FastAPI(title="POS API MVP", version="0.1.0")
 # ★──── CORS middleware ────★
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # フロントの URL
+    allow_origins=[FRONTEND_ORIGIN],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
