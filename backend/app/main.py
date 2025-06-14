@@ -14,6 +14,9 @@ from sqlalchemy.orm import Session
 from .db import SessionLocal
 from .models import Product, Transaction, TransactionDetail
 
+import os
+FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+
 TAX_RATE = Decimal("0.10")  # 10% 固定
 
 app = FastAPI(title="POS API MVP", version="0.1.0")
