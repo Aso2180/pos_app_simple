@@ -22,7 +22,7 @@ services:
     container_name: pos-backend
     restart: unless-stopped
     env_file:
-      - .env                               # DB_USER 等をここに書く
+      - ./backend/.env.development
     depends_on:
       - db
     ports:
@@ -34,10 +34,10 @@ services:
       context: ./frontend                  # frontend/Dockerfile
     container_name: pos-frontend
     restart: unless-stopped
+    env_file:
+      - ./frontend/.env.development
     depends_on:
       - backend
-    environment:
-      - NEXT_PUBLIC_API_URL=https://pos-backend.ashystone-fb341e56.japaneast.azurecontainerapps.io   # ← フロント→バックエンド
     ports:
       - "3000:3000"                        # ホスト→コンテナ (Web)
 

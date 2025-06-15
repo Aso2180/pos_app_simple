@@ -1,10 +1,17 @@
 #####################  1) Build Stage  #####################
+# 追加（デフォルトを本番用に）
+ARG ENV_FILE=.env.production
+
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
 # 依存だけ先にコピーするとキャッシュが効く
 COPY package*.json ./
+# もう一度宣言（実引数を受け取る）
+ARG ENV_FILE
+# ここで .env を取り込む
+COPY ${ENV_FILE} ./.env
 RUN npm ci          
 
 # アプリ本体をコピーしてビルド
