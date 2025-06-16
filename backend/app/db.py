@@ -12,22 +12,32 @@ DB_HOST = os.getenv("DB_HOST", "pos-db")
 DB_PORT = os.getenv("DB_PORT", "3306")
 DB_NAME = os.getenv("DB_NAME", "pos_app_db")
 
-DATABASE_URL = (
-    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-)
+
+# ---------- CA ファイル ----------
+CA_CERT = "/etc/ssl/certs/digicert.pem"    # Dockerfile で配置したパス
+
+# ---------- DSN 組み立て ----------
+BASE_DSN = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+# ・Azure MySQL Flexible Server なら SSL 必須
+#   →   *.mysql.database.azure.com で判定
+if DB_HOST.endswith(".mysql.database.azure.com"):
+    DATABASE_URL = f"{BASE_DSN}?ssl_ca={CA_CERT}&ssl_verify_cert=true"
+    CONNECT_ARGS = {}
+else:
+    # ローカル開発：SSL 無し
+    DATABASE_URL = BASE_DSN
+    CONNECT_ARGS = {}
 
 # ────────────────────────────────
 # SQLAlchemy
 # ────────────────────────────────
-SSL_CA_PATH = "/etc/ssl/certs/baltimore.pem"      # もしくは /usr/local/share/ca-certificates/baltimore.pem
 
 engine = create_engine(
     DATABASE_URL,
     echo=False,
     future=True,
-    connect_args={
-        "ssl": {"ca": SSL_CA_PATH}
-    }
+    connect_args=CONNECT_ARGS,
 )
 
 SessionLocal = sessionmaker(
