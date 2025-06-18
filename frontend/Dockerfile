@@ -1,6 +1,6 @@
 #####################  1) Build Stage  #####################
 # 追加（デフォルトを本番用に）
-ARG ENV_FILE=.env.production
+ARG ENV_FILE=.env.development
 
 FROM node:20-alpine AS builder
 
