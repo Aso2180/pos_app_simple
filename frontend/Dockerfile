@@ -1,7 +1,5 @@
 #####################  1) Build Stage  #####################
-# 追加（デフォルトを本番用に）
-ARG ENV_FILE=.env.development
-
+ARG ENV_FILE=.env.production
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -13,7 +11,6 @@ ARG ENV_FILE
 # ここで .env を取り込む
 COPY ${ENV_FILE} ./.env
 RUN npm ci          
-
 # アプリ本体をコピーしてビルド
 COPY . .
 RUN npm run build  

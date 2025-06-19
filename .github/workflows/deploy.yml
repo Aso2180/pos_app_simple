@@ -33,6 +33,9 @@ jobs:
             PASS="${{ secrets.ACR_PASSWORD }}"
             TAG="${{ github.event.workflow_run.head_sha }}"
 
+            # === 本番用DBパスワード ===
+            DB_PASS="limit500?"
+
             # ======= Backend ===================================================
             if az containerapp show -g $RG -n pos-backend &>/dev/null; then
               az containerapp update -g $RG -n pos-backend --image $REG/pos-backend:$TAG
@@ -43,11 +46,9 @@ jobs:
                 --target-port 8000 --ingress external \
                 --min-replicas 1 \
                 --cpu 0.5 --memory 1Gi \
-                --env-vars DB_USER="adminuser@posmysqlserver-sea" \
-                           DB_PASSWORD="limit500?" \
-                           DB_HOST="posmysqlserver-sea.mysql.database.azure.com" \
-                           DB_PORT=3306 \
-                           DB_NAME=pos_app_db
+                --env-vars FRONTEND_ORIGIN="https://pos-frontend.ashystone-fb341e56.japaneast.azurecontainerapps.io" \
+                           DATABASE_URL="mysql+pymysql://adminuser:limit500?@posmysqlserver-sea.mysql.database.azure.com:3306/pos_app_db?ssl_ca=/usr/local/share/ca-certificates/digicert.pem&ssl_verify_cert=true"
+
             fi
             az containerapp registry set -g $RG -n pos-backend \
               --server $REG --username $USER --password $PASS
@@ -84,6 +85,6 @@ jobs:
                 --target-port 3306 --ingress internal \
                 --min-replicas 1 \
                 --cpu 0.5 --memory 1Gi \
-                --env-vars MYSQL_ROOT_PASSWORD="limit500?" \
+                --env-vars MYSQL_ROOT_PASSWORD="$DB_PASS" \
                            MYSQL_DATABASE=pos_app_db
             fi
