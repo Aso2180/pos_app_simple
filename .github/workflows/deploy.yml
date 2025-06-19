@@ -44,7 +44,7 @@ jobs:
                 --min-replicas 1 \
                 --cpu 0.5 --memory 1Gi \
                 --env-vars DB_USER="adminuser@posmysqlserver-sea" \
-                           DB_PASSWORD="Limit500?" \
+                           DB_PASSWORD="limit500?" \
                            DB_HOST="posmysqlserver-sea.mysql.database.azure.com" \
                            DB_PORT=3306 \
                            DB_NAME=pos_app_db
