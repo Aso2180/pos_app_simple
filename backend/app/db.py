@@ -1,6 +1,7 @@
 # backend/app/db.py
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.engine import URL
 import os
 
 # ────────────────────────────────
@@ -17,16 +18,26 @@ DB_NAME = os.getenv("DB_NAME", "pos_app_db")
 CA_CERT = "/etc/ssl/certs/digicert.pem"    # Dockerfile で配置したパス
 
 # ---------- DSN 組み立て ----------
-BASE_DSN = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# PASSWORD に記号が含まれていても正しく接続できるよう URL.create() を利用
+BASE_DSN = URL.create(
+    "mysql+pymysql",
+    username=DB_USER,
+    password=DB_PASSWORD,
+    host=DB_HOST,
+    port=int(DB_PORT),
+    database=DB_NAME,
+)
 
 # ・Azure MySQL Flexible Server なら SSL 必須
 #   →   *.mysql.database.azure.com で判定
 if DB_HOST.endswith(".mysql.database.azure.com"):
-    DATABASE_URL = f"{BASE_DSN}?ssl_ca={CA_CERT}&ssl_verify_cert=true"
+    DATABASE_URL = str(
+        BASE_DSN.set(query={"ssl_ca": CA_CERT, "ssl_verify_cert": "true"})
+    )
     CONNECT_ARGS = {}
 else:
     # ローカル開発：SSL 無し
-    DATABASE_URL = BASE_DSN
+    DATABASE_URL = str(BASE_DSN)
     CONNECT_ARGS = {}
 
 # ────────────────────────────────
