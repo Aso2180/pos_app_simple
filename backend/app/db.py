@@ -13,32 +13,39 @@ DB_HOST = os.getenv("DB_HOST", "pos-db")
 DB_PORT = os.getenv("DB_PORT", "3306")
 DB_NAME = os.getenv("DB_NAME", "pos_app_db")
 
+# Allow full connection string via DATABASE_URL
+DATABASE_URL_ENV = os.getenv("DATABASE_URL")
 
-# ---------- CA ファイル ----------
-CA_CERT = "/etc/ssl/certs/digicert.pem"    # Dockerfile で配置したパス
 
-# ---------- DSN 組み立て ----------
-# PASSWORD に記号が含まれていても正しく接続できるよう URL.create() を利用
-BASE_DSN = URL.create(
-    "mysql+pymysql",
-    username=DB_USER,
-    password=DB_PASSWORD,
-    host=DB_HOST,
-    port=int(DB_PORT),
-    database=DB_NAME,
-)
-
-# ・Azure MySQL Flexible Server なら SSL 必須
-#   →   *.mysql.database.azure.com で判定
-if DB_HOST.endswith(".mysql.database.azure.com"):
-    DATABASE_URL = str(
-        BASE_DSN.set(query={"ssl_ca": CA_CERT, "ssl_verify_cert": "true"})
-    )
+if DATABASE_URL_ENV:
+    DATABASE_URL = DATABASE_URL_ENV
     CONNECT_ARGS = {}
 else:
-    # ローカル開発：SSL 無し
-    DATABASE_URL = str(BASE_DSN)
-    CONNECT_ARGS = {}
+    # ---------- CA ファイル ----------
+    CA_CERT = "/etc/ssl/certs/digicert.pem"    # Dockerfile で配置したパス
+
+    # ---------- DSN 組み立て ----------
+    # PASSWORD に記号が含まれていても正しく接続できるよう URL.create() を利用
+    BASE_DSN = URL.create(
+        "mysql+pymysql",
+        username=DB_USER,
+        password=DB_PASSWORD,
+        host=DB_HOST,
+        port=int(DB_PORT),
+        database=DB_NAME,
+    )
+
+    # ・Azure MySQL Flexible Server なら SSL 必須
+    #   →   *.mysql.database.azure.com で判定
+    if DB_HOST.endswith(".mysql.database.azure.com"):
+        DATABASE_URL = str(
+            BASE_DSN.set(query={"ssl_ca": CA_CERT, "ssl_verify_cert": "true"})
+        )
+        CONNECT_ARGS = {}
+    else:
+        # ローカル開発：SSL 無し
+        DATABASE_URL = str(BASE_DSN)
+        CONNECT_ARGS = {}
 
 # ────────────────────────────────
 # SQLAlchemy
