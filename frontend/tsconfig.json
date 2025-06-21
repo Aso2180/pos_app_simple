@@ -1,10 +1,23 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",          // 追加: ルートをプロジェクト直下に
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]       // 追加: "@/..." → "src/..." へ解決
-    },
-    "jsx": "react-jsx",      // 省略されていれば追加すると React import 不要
-    /* 既存の設定はそのまま */
-  }
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }
