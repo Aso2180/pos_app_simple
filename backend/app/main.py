@@ -15,7 +15,12 @@ from .db import SessionLocal
 from .models import Product, Transaction, TransactionDetail
 
 import os
-FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+
+# ``FRONTEND_ORIGIN`` may contain a comma separated list.  An asterisk ``*``
+# allows all origins which is handy for debugging or misconfigured deployments.
+origins_env = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+_origins = [o.strip() for o in origins_env.split(",") if o.strip()]
+
 
 TAX_RATE = Decimal("0.10")  # 10% 固定
 
@@ -24,7 +29,8 @@ app = FastAPI(title="POS API MVP", version="0.1.0")
 # ★──── CORS middleware ────★
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_ORIGIN],
+    allow_origins=_origins if "*" not in _origins else ["*"],
+    allow_origin_regex=".*" if "*" in _origins else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
