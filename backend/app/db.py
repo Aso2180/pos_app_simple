@@ -23,18 +23,15 @@ DATABASE_URL_ENV = os.getenv("DATABASE_URL")
 
 
 if DATABASE_URL_ENV:
+    # Use provided connection string directly
     DATABASE_URL = DATABASE_URL_ENV
 
-    # DATABASE_URL に ssl_ca=... が含まれていても、PyMySQL 用の connect_args を明示
+    # If connecting to Azure MySQL, ensure CA file is explicitly passed
     if "mysql.database.azure.com" in DATABASE_URL_ENV:
-        CONNECT_ARGS = {
-            "ssl": {
-                "ca": "/etc/ssl/certs/digicert.pem"
-            }
-        }
+        CONNECT_ARGS = {"ssl": {"ca": CA_CERT}}
     else:
         CONNECT_ARGS = {}
-
+else:
     # ---------- DSN 組み立て ----------
     # PASSWORD に記号が含まれていても正しく接続できるよう URL.create() を利用
     BASE_DSN = URL.create(
