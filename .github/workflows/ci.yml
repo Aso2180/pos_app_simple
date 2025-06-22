@@ -38,6 +38,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
 
+      - name: Install MySQL server
+        run: sudo apt-get update && sudo apt-get install -y mysql-server
+
       - name: Run tests
         run: pytest backend/tests -q
 
