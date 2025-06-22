@@ -13,6 +13,9 @@ DB_HOST = os.getenv("DB_HOST", "pos-db")
 DB_PORT = os.getenv("DB_PORT", "3306")
 DB_NAME = os.getenv("DB_NAME", "pos_app_db")
 
+# ---------- CA ファイル ----------
+CA_CERT = "/etc/ssl/certs/digicert.pem"  # Dockerfile で配置したパス
+
 # Allow full connection string via DATABASE_URL
 DATABASE_URL_ENV = os.getenv("DATABASE_URL")
 
