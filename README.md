@@ -34,5 +34,12 @@ Unit tests live under `backend/tests`. Install the backend requirements and run
 pytest
 ```
 
-Tests spin up a temporary MySQL server using `pytest-mysql`, so Docker or
-MySQL does not need to be running beforehand.
+Tests spin up a temporary MySQL server using `pytest-mysql`. The fixture
+requires the `mysqld` binary to be available on the system. On most Linux
+systems installing the `mysql-server` package is sufficient:
+
+```bash
+sudo apt-get update && sudo apt-get install -y mysql-server
+```
+
+After installing MySQL, simply run the tests as shown above.
