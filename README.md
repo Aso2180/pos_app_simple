@@ -28,7 +28,13 @@ Otherwise the backend builds the DSN from `DB_USER`, `DB_PASSWORD`, `DB_HOST`,
 
 ## Running tests
 
-Unit tests live under `backend/tests`. Install the backend requirements and run
+Unit tests live under `backend/tests`. Install the backend requirements first:
+
+```bash
+pip install -r backend/requirements.txt
+```
+
+Then run the tests with
 
 ```bash
 pytest
