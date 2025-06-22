@@ -3,12 +3,12 @@ import os
 
 from app.db import CA_CERT, Base, SessionLocal, engine
 from app.models import Product
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import IntegrityError
 
-load_dotenv(dotenv_path=".env.production")
+load_dotenv(find_dotenv(".env.production"), override=False)
 
 
 # 初回：DBが存在しない場合は作成（MySQL限定）
