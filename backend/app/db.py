@@ -3,6 +3,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.engine import URL
 import os
+from dotenv import load_dotenv
+load_dotenv(dotenv_path=".env.production")
 
 # ────────────────────────────────
 # 環境変数（.env）を利用
