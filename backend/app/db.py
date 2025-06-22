@@ -19,11 +19,14 @@ DATABASE_URL_ENV = os.getenv("DATABASE_URL")
 
 if DATABASE_URL_ENV:
     DATABASE_URL = DATABASE_URL_ENV
-    
-    # CA 証明書も必要
-    if DB_HOST.endswith(".mysql.database.azure.com"):
-        CA_CERT = "/etc/ssl/certs/digicert.pem"
-        CONNECT_ARGS = {"ssl": {"ca": CA_CERT}}
+
+    # DATABASE_URL に ssl_ca=... が含まれていても、PyMySQL 用の connect_args を明示
+    if "mysql.database.azure.com" in DATABASE_URL_ENV:
+        CONNECT_ARGS = {
+            "ssl": {
+                "ca": "/etc/ssl/certs/digicert.pem"
+            }
+        }
     else:
         CONNECT_ARGS = {}
 
