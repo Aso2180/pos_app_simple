@@ -7,6 +7,7 @@ WORKDIR /app
 # COPY ./certs/digicert.pem /usr/local/share/ca-certificates/digicert.pem
 # RUN chmod 644 /usr/local/share/ca-certificates/digicert.pem \
     # && update-ca-certificates
+COPY ./certs/digicert.pem /etc/ssl/certs/digicert.pem
 
 # 2) 依存インストール
 COPY requirements.txt .

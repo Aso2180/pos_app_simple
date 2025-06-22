@@ -19,10 +19,13 @@ DATABASE_URL_ENV = os.getenv("DATABASE_URL")
 
 if DATABASE_URL_ENV:
     DATABASE_URL = DATABASE_URL_ENV
-    CONNECT_ARGS = {}
-else:
-    # ---------- CA ファイル ----------
-    CA_CERT = "/etc/ssl/certs/digicert.pem"    # Dockerfile で配置したパス
+    
+    # CA 証明書も必要
+    if DB_HOST.endswith(".mysql.database.azure.com"):
+        CA_CERT = "/etc/ssl/certs/digicert.pem"
+        CONNECT_ARGS = {"ssl": {"ca": CA_CERT}}
+    else:
+        CONNECT_ARGS = {}
 
     # ---------- DSN 組み立て ----------
     # PASSWORD に記号が含まれていても正しく接続できるよう URL.create() を利用
