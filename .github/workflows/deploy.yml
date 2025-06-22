@@ -47,7 +47,7 @@ jobs:
                 --min-replicas 1 \
                 --cpu 0.5 --memory 1Gi \
                 --env-vars FRONTEND_ORIGIN="https://pos-frontend.ashystone-fb341e56.japaneast.azurecontainerapps.io" \
-                           DATABASE_URL="mysql+pymysql://adminuser:limit500?@posmysqlserver-sea.mysql.database.azure.com:3306/pos_app_db?ssl_ca=/usr/local/share/ca-certificates/digicert.pem&ssl_verify_cert=true"
+                           DATABASE_URL="mysql+pymysql://adminuser:limit500%3F@posmysqlserver-sea.mysql.database.azure.com:3306/pos_app_db?ssl_ca=/etc/ssl/certs/digicert.pem&ssl_verify_cert=true"
 
             fi
             az containerapp registry set -g $RG -n pos-backend \
