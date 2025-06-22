@@ -3,9 +3,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# 1) Microsoft が公開しているルート CA を追加
-ADD https://cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem /usr/local/share/ca-certificates/digicert.pem
-RUN update-ca-certificates
+# CA証明書の追加
+COPY ./certs/digicert.pem /usr/local/share/ca-certificates/digicert.crt
+RUN chmod 644 /usr/local/share/ca-certificates/digicert.crt \
+    && update-ca-certificates
 
 # 2) 依存インストール
 COPY requirements.txt .
