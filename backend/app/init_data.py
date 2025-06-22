@@ -21,8 +21,9 @@ def create_database_if_not_exists():
     # parse DATABASE_URL and remove database/query components
     url = make_url(db_url)
     db_name = url.database
-    if db_name:
-        db_name = db_name.partition("?")[0]
+    if not db_name:
+        raise RuntimeError("DATABASE_URL に DB 名が含まれていません")
+    db_name = db_name.partition("?")[0]
     base_url = url.set(database="", query=None)
 
     quoted_db = quoted_name(db_name, quote=True)
