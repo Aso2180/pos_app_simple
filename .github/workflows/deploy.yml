@@ -88,3 +88,10 @@ jobs:
                 --env-vars MYSQL_ROOT_PASSWORD="$DB_PASS" \
                            MYSQL_DATABASE=pos_app_db
             fi
+            
+            # ======= Init Script 実行 ==========================================
+            echo "==> 実行中: 初期データの登録 init_data.py"
+
+            # pos-backend の FQDN から /init 実行を想定（FastAPI 側に /init 実装必要）
+            curl -X POST https://$BACK_FQDN/init || echo "⚠ /init 実行失敗または未実装"
+

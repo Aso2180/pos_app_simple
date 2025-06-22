@@ -16,6 +16,17 @@ from .models import Product, Transaction, TransactionDetail
 
 import os
 
+from fastapi import FastAPI, Depends
+from app.init_data import main as init_main
+
+app = FastAPI()
+
+@app.post("/init")
+def initialize_data():
+    init_main()
+    return {"message": "初期データ登録完了"}
+
+
 # ``FRONTEND_ORIGIN`` may contain a comma separated list.  An asterisk ``*``
 # allows all origins which is handy for debugging or misconfigured deployments.
 origins_env = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
