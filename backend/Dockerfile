@@ -4,8 +4,8 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # CA証明書の追加
-COPY ./certs/digicert.pem /usr/local/share/ca-certificates/digicert.crt
-RUN chmod 644 /usr/local/share/ca-certificates/digicert.crt \
+COPY ./certs/digicert.pem /usr/local/share/ca-certificates/digicert.pem
+RUN chmod 644 /usr/local/share/ca-certificates/digicert.pem \
     && update-ca-certificates
 
 # 2) 依存インストール
