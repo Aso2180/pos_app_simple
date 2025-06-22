@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql import quoted_name
 
 load_dotenv(dotenv_path=".env.production")
 
@@ -20,14 +21,18 @@ def create_database_if_not_exists():
     # parse DATABASE_URL and remove database/query components
     url = make_url(db_url)
     db_name = url.database
-    base_url = url.set(database=None, query=None)
+    if db_name:
+        db_name = db_name.partition("?")[0]
+    base_url = url.set(database="", query=None)
+
+    quoted_db = quoted_name(db_name, quote=True)
 
     # DBなし接続エンジンで CREATE DATABASE 実行
     engine_wo_db = create_engine(str(base_url), connect_args={"ssl": {"ca": CA_CERT}})
     with engine_wo_db.connect() as conn:
         conn.execute(
             text(
-                f"CREATE DATABASE IF NOT EXISTS {db_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"
+                f"CREATE DATABASE IF NOT EXISTS {quoted_db} CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"
             )
         )
         print(f"✓ データベース `{db_name}` の存在を確認（または作成）しました。")
