@@ -25,3 +25,14 @@ The API can connect to the database in two ways. If the `DATABASE_URL` environme
 variable is set, its value is used directly as the SQLAlchemy connection string.
 Otherwise the backend builds the DSN from `DB_USER`, `DB_PASSWORD`, `DB_HOST`,
 `DB_PORT` and `DB_NAME`.
+
+## Running tests
+
+Unit tests live under `backend/tests`. Install the backend requirements and run
+
+```bash
+pytest
+```
+
+Tests spin up a temporary MySQL server using `pytest-mysql`, so Docker or
+MySQL does not need to be running beforehand.
