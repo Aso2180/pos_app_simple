@@ -1,6 +1,7 @@
 # backend/app/main.py
 from __future__ import annotations
-
+from dotenv import load_dotenv
+load_dotenv(dotenv_path=".env.production")
 from datetime import datetime
 from typing import List, Optional
 from decimal import Decimal, ROUND_HALF_UP

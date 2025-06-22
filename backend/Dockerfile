@@ -3,7 +3,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# CA証明書の追加
+# CA証明書は追加済み
 # COPY ./certs/digicert.pem /usr/local/share/ca-certificates/digicert.pem
 # RUN chmod 644 /usr/local/share/ca-certificates/digicert.pem \
     # && update-ca-certificates

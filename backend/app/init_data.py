@@ -1,5 +1,7 @@
 # app/init_data.py
 import pymysql
+from dotenv import load_dotenv
+load_dotenv(dotenv_path=".env.production")
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import text, create_engine
 from app.db import SessionLocal, Base, engine
