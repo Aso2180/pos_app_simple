@@ -17,8 +17,10 @@ def test_init_data(mysql_fixture, monkeypatch):
     )
     monkeypatch.setenv("DATABASE_URL", url)
     import app.db as db
+    import app.models as models
     import app.init_data as init_data
     importlib.reload(db)
+    importlib.reload(models)
     importlib.reload(init_data)
     monkeypatch.setattr(db, "CA_CERT", "/etc/ssl/certs/ca-certificates.crt", raising=False)
     monkeypatch.setattr(init_data, "CA_CERT", "/etc/ssl/certs/ca-certificates.crt", raising=False)
