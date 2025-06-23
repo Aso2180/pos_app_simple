@@ -1,10 +1,6 @@
 import importlib
 import pathlib
 import sys
-from pytest_mysql.factories import mysql, mysql_proc
-
-mysql_proc_fixture = mysql_proc()
-mysql_fixture = mysql("mysql_proc_fixture", dbname="pos_app_test")
 
 def test_init_data(mysql_fixture, monkeypatch):
     # Ensure backend package is importable
@@ -34,6 +30,8 @@ def test_init_data(mysql_fixture, monkeypatch):
     monkeypatch.setattr(init_data, "create_database_if_not_exists", _create_db)
 
     init_data.main()
+
+    mysql_fixture.select_db("pos_app_test")
 
     with mysql_fixture.cursor() as cur:
         cur.execute("SHOW TABLES")

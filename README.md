@@ -40,9 +40,11 @@ Then run the tests with
 pytest
 ```
 
-Tests spin up a temporary MySQL server using `pytest-mysql`. The fixture
-requires the `mysqld` binary to be available on the system. On most Linux
-systems installing the `mysql-server` package is sufficient:
+Tests spin up a temporary MySQL server by invoking the local `mariadbd`
+binary directly. The fixture requires the MariaDB or MySQL server
+utilities (e.g. `mariadbd`, `mariadb-install-db`) to be available on the
+system. On most Linux systems installing the `mysql-server` (or
+`mariadb-server`) package is sufficient:
 
 ```bash
 sudo apt-get update && sudo apt-get install -y mysql-server

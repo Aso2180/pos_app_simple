@@ -5,4 +5,3 @@ pydantic
 python-dotenv
 pymysql         # ← ここが MySQL 接続ドライバ
 pytest
-pytest-mysql
