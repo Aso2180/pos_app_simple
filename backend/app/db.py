@@ -4,7 +4,9 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.engine import URL
 import os
 from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv(".env.production"), override=False)
+
+ENV_FILE = os.getenv("ENV_FILE", ".env.production")
+load_dotenv(find_dotenv(ENV_FILE), override=False)
 
 # ────────────────────────────────
 # 環境変数（.env）を利用

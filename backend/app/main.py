@@ -1,7 +1,10 @@
 # backend/app/main.py
 from __future__ import annotations
 from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv(".env.production"), override=False)
+import os
+
+ENV_FILE = os.getenv("ENV_FILE", ".env.production")
+load_dotenv(find_dotenv(ENV_FILE), override=False)
 from datetime import datetime
 from typing import List, Optional
 from decimal import Decimal, ROUND_HALF_UP
@@ -16,8 +19,6 @@ from .db import SessionLocal
 from .models import Product, Transaction, TransactionDetail
 
 from app.init_data import main as init_main
-
-import os
 
 # ✅ FastAPIインスタンスは1回だけ作成（ここでタイトルも設定）
 app = FastAPI(title="POS API MVP", version="0.1.0")
