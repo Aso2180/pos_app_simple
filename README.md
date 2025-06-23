@@ -26,6 +26,15 @@ variable is set, its value is used directly as the SQLAlchemy connection string.
 Otherwise the backend builds the DSN from `DB_USER`, `DB_PASSWORD`, `DB_HOST`,
 `DB_PORT` and `DB_NAME`.
 
+Environment variables are loaded from the file specified by `ENV_FILE`. When the
+variable is not set, `.env.production` is used.
+For local development you can create a custom env file and start the services
+with:
+
+```bash
+ENV_FILE=.env.local docker-compose up --build
+```
+
 ## Running tests
 
 Unit tests live under `backend/tests`. Install the backend requirements first:
