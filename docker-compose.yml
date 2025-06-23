@@ -23,6 +23,8 @@ services:
     restart: unless-stopped
     env_file:
       - ./backend/${ENV_FILE:-.env.development}
+    environment:
+      ENV_FILE: ${ENV_FILE:-.env.development}
     depends_on:
       - db
     ports:
@@ -38,6 +40,8 @@ services:
     restart: unless-stopped
     env_file:
       - ./frontend/${ENV_FILE:-.env.development}
+    environment:
+      ENV_FILE: ${ENV_FILE:-.env.development}
     depends_on:
       - backend
     ports:

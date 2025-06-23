@@ -27,7 +27,9 @@ Otherwise the backend builds the DSN from `DB_USER`, `DB_PASSWORD`, `DB_HOST`,
 `DB_PORT` and `DB_NAME`.
 
 Environment variables are loaded from the file specified by `ENV_FILE`. When the
-variable is not set, `.env.production` is used.
+variable is not set, `.env.production` is used. Docker Compose mounts this file
+into each service and also exposes its name as the `ENV_FILE` environment
+variable so the running containers know which configuration was applied.
 For local development use the provided development files and start the services
 with:
 
