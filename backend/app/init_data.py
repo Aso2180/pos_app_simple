@@ -6,8 +6,8 @@ from dotenv import load_dotenv, find_dotenv
 ENV_FILE = os.getenv("ENV_FILE", ".env.production")
 load_dotenv(find_dotenv(ENV_FILE), override=False)
 
-from app.db import CA_CERT, Base, SessionLocal, engine, DATABASE_URL, CONNECT_ARGS
-from app.models import Product
+from .db import Base, SessionLocal, engine, DATABASE_URL, CONNECT_ARGS
+from .models import Product
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import IntegrityError
