@@ -10,7 +10,7 @@ load_dotenv(find_dotenv(".env.production"), override=False)
 # 環境変数（.env）を利用
 # ────────────────────────────────
 DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "limit500?")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "limit500%3F")
 DB_HOST = os.getenv("DB_HOST", "pos-db")
 DB_PORT = os.getenv("DB_PORT", "3306")
 DB_NAME = os.getenv("DB_NAME", "pos_app_db")

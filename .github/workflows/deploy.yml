@@ -34,7 +34,7 @@ jobs:
             TAG="${{ github.event.workflow_run.head_sha }}"
 
             # === 本番用DBパスワード ===
-            DB_PASS="limit500?"
+            DB_PASS="limit500%3F"
 
             # ======= Backend ===================================================
             if az containerapp show -g $RG -n pos-backend &>/dev/null; then
