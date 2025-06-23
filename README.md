@@ -28,10 +28,10 @@ Otherwise the backend builds the DSN from `DB_USER`, `DB_PASSWORD`, `DB_HOST`,
 
 Environment variables are loaded from the file specified by `ENV_FILE`. When the
 variable is not set, `.env.production` is used.
-For local development you can create a custom env file and start the services
+For local development use the provided development files and start the services
 with:
 
 ```bash
-ENV_FILE=.env.local docker-compose up --build
+ENV_FILE=.env.development docker-compose up --build
 ```
 
