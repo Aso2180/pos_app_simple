@@ -4,4 +4,3 @@ SQLAlchemy>=2.0
 pydantic
 python-dotenv
 pymysql         # ← ここが MySQL 接続ドライバ
-pytest

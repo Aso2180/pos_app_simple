@@ -35,28 +35,3 @@ with:
 ENV_FILE=.env.local docker-compose up --build
 ```
 
-## Running tests
-
-Unit tests live under `backend/tests`. Install the backend requirements first:
-
-```bash
-pip install -r backend/requirements.txt
-```
-
-Then run the tests with
-
-```bash
-pytest
-```
-
-Tests spin up a temporary MySQL server by invoking the local `mariadbd`
-binary directly. The fixture requires the MariaDB or MySQL server
-utilities (e.g. `mariadbd`, `mariadb-install-db`) to be available on the
-system. On most Linux systems installing the `mysql-server` (or
-`mariadb-server`) package is sufficient:
-
-```bash
-sudo apt-get update && sudo apt-get install -y mysql-server
-```
-
-After installing MySQL, simply run the tests as shown above.
