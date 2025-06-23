@@ -7,7 +7,7 @@ services:
     container_name: pos-db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: limit500%3F
+      MYSQL_ROOT_PASSWORD: limit500%3F 
       MYSQL_DATABASE: pos_app_db
     ports:
       - "3307:3306"                        # ホスト→コンテナ
