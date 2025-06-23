@@ -35,3 +35,8 @@ with:
 ENV_FILE=.env.development docker-compose up --build
 ```
 
+
+## SSL certificate
+
+The backend verifies connections to Azure Database for MySQL using the DigiCert root certificate. The file `backend/certs/digicert.pem` is copied to `/etc/ssl/certs/digicert.pem` when the Docker image is built and is required for SSL connections.
+
