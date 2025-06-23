@@ -1,25 +1,23 @@
 # app/init_data.py
 import os
-
-from app.db import CA_CERT, Base, SessionLocal, engine
-from app.models import Product
 from dotenv import load_dotenv, find_dotenv
+
+# Allow switching environment via ENV_FILE (defaults to production)
+ENV_FILE = os.getenv("ENV_FILE", ".env.production")
+load_dotenv(find_dotenv(ENV_FILE), override=False)
+
+from app.db import CA_CERT, Base, SessionLocal, engine, DATABASE_URL, CONNECT_ARGS
+from app.models import Product
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import quoted_name
 
-load_dotenv(find_dotenv(".env.production"), override=False)
-
 
 # 初回：DBが存在しない場合は作成（MySQL限定）
 def create_database_if_not_exists():
-    db_url = os.environ.get("DATABASE_URL")
-    if not db_url:
-        raise RuntimeError("DATABASE_URL 環境変数が未設定です")
-
-    # parse DATABASE_URL and remove database/query components
-    url = make_url(db_url)
+    # Use the final DATABASE_URL resolved in app.db
+    url = make_url(DATABASE_URL)
     db_name = url.database
     if not db_name:
         raise RuntimeError("DATABASE_URL に DB 名が含まれていません")
@@ -29,7 +27,7 @@ def create_database_if_not_exists():
     quoted_db = quoted_name(db_name, quote=True)
 
     # DBなし接続エンジンで CREATE DATABASE 実行
-    engine_wo_db = create_engine(str(base_url), connect_args={"ssl": {"ca": CA_CERT}})
+    engine_wo_db = create_engine(str(base_url), connect_args=CONNECT_ARGS)
     with engine_wo_db.connect() as conn:
         conn.execute(
             text(
