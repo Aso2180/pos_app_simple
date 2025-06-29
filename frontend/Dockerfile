@@ -15,6 +15,10 @@ COPY ${ENV_FILE} ./.env
 
 # Copy source and build
 COPY . .
+
+# Ensure public directory exists (required for COPY in runtime stage)
+RUN mkdir -p ./public
+
 RUN npm run build
 
 #####################  2) Runtime Stage ####################
@@ -33,6 +37,8 @@ RUN addgroup --system --gid 1001 nodejs \
 # Copy built application
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy public directory (create empty one in builder if it doesn't exist)
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # Switch to non-root user
