@@ -12,7 +12,7 @@ load_dotenv(find_dotenv(ENV_FILE), override=False)
 # 環境変数（.env）を利用
 # ────────────────────────────────
 DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "limit500%3F") 
+DB_PASSWORD = os.getenv("DB_PASSWORD", "limit500?") 
 DB_HOST = os.getenv("DB_HOST", "pos-db")
 DB_PORT = os.getenv("DB_PORT", "3306")
 DB_NAME = os.getenv("DB_NAME", "pos_app_db")
@@ -48,10 +48,13 @@ else:
     # ・Azure MySQL Flexible Server なら SSL 必須
     #   →   *.mysql.database.azure.com で判定
     if DB_HOST.endswith(".mysql.database.azure.com"):
-        DATABASE_URL = str(
-            BASE_DSN.set(query={"ssl_ca": CA_CERT, "ssl_verify_cert": "true"})
-        )
-        CONNECT_ARGS = {}
+        # Use direct parameter mapping that works in PyMySQL test
+        DATABASE_URL = str(BASE_DSN)
+        CONNECT_ARGS = {
+            "ssl_ca": CA_CERT,
+            "ssl_verify_cert": True,
+            "ssl_verify_identity": True
+        }
     else:
         # ローカル開発：SSL 無し
         DATABASE_URL = str(BASE_DSN)
@@ -60,6 +63,9 @@ else:
 # ────────────────────────────────
 # SQLAlchemy
 # ────────────────────────────────
+
+print(f"🔧 DATABASE_URL: {DATABASE_URL}")
+print(f"🔧 CONNECT_ARGS: {CONNECT_ARGS}")
 
 engine = create_engine(
     DATABASE_URL,

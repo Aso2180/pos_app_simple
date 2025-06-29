@@ -20,8 +20,19 @@ from .models import Product, Transaction, TransactionDetail
 
 from app.init_data import main as init_main
 
-# ✅ FastAPIインスタンスは1回だけ作成（ここでタイトルも設定）
-app = FastAPI(title="POS API MVP", version="0.1.0")
+# ✅ FastAPI instance with enhanced configuration for Azure
+app = FastAPI(
+    title="POS API MVP", 
+    version="0.1.0",
+    description="Point of Sale API for Azure Container Apps",
+    docs_url="/docs" if os.getenv("ENV") != "production" else None,  # Disable docs in production
+    redoc_url="/redoc" if os.getenv("ENV") != "production" else None,
+)
+
+# Health check endpoint for Azure Container Apps
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "service": "pos-backend"}
 
 # ✅ 初期化エンドポイント（あとで削除OK）
 @app.post("/init")
@@ -29,18 +40,37 @@ def initialize_data():
     init_main()
     return {"message": "初期データ登録完了"}
 
-# ``FRONTEND_ORIGIN`` may contain a comma separated list
-origins_env = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
-_origins = [o.strip() for o in origins_env.split(",") if o.strip()]
+# ★──── Enhanced CORS Configuration for Azure ────★
+# Parse FRONTEND_ORIGIN environment variable (supports comma-separated list)
+frontend_origins = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+allowed_origins = [origin.strip() for origin in frontend_origins.split(",") if origin.strip()]
 
-# ★──── CORS middleware ────★
+# Add additional Azure-specific origins
+azure_origins = [
+    "https://pos-frontend.ashystone-fb341e56.japaneast.azurecontainerapps.io",
+    "https://pos-backend.ashystone-fb341e56.japaneast.azurecontainerapps.io"  # For API docs
+]
+
+# Combine all origins and remove duplicates
+all_origins = list(set(allowed_origins + azure_origins))
+
+# Configure CORS middleware with enhanced security
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_origins if "*" not in _origins else ["*"],
-    allow_origin_regex=".*" if "*" in _origins else None,
+    allow_origins=all_origins,
+    allow_origin_regex=None,  # Strict origin checking
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Specific methods only
+    allow_headers=[
+        "Accept",
+        "Accept-Language", 
+        "Content-Language",
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+    ],
+    expose_headers=["X-Total-Count"],  # For pagination
+    max_age=3600,  # Cache preflight requests for 1 hour
 )
 # ★──────────────────────★
 

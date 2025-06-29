@@ -1,8 +1,16 @@
+import React from 'react';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/router';        // ★ 追加
 import { fetchProduct, createPurchase } from '@/lib/api';
 import { useCart, CartProvider } from '@/contexts/CartContext';
 import Modal from '@/components/Modal';
+
+type PurchaseResponse = {
+  success: boolean;
+  transaction_id: number;
+  total_amount: number;
+  total_amount_ex: number;
+};
 
 function PosInner() {
   const {items, addItem, clear } = useCart();
@@ -60,7 +68,7 @@ function PosInner() {
     };
 
     try {
-      const res = await createPurchase(payload);
+      const res = await createPurchase(payload) as PurchaseResponse;
     /*const tid = res.transaction_id;               // ★ スコープ内で保持 */
       setLastTid(res.transaction_id);              // ★ 追加
 

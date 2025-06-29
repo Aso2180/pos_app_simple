@@ -37,7 +37,7 @@ jobs:
           context: ./frontend
           push: true
           tags: ${{ env.REGISTRY }}/pos-frontend:${{ env.IMAGE_TAG }}
-          build-args: ENV_FILE=.env.production
+          build-args: ENV_FILE=.env.development
           no-cache: true
 
       - name: Export tag

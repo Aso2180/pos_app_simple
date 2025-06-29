@@ -1,51 +1,81 @@
+# docker-compose.yml - Local Development Configuration
 version: "3.8"
 
 services:
-  # ----------------- MySQL -----------------
+  # ----------------- MySQL Database -----------------
   db:
     image: mysql:8.0
     container_name: pos-db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: limit500%3F 
+      MYSQL_ROOT_PASSWORD: limit500?
       MYSQL_DATABASE: pos_app_db
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
     ports:
-      - "3307:3306"                        # ホスト→コンテナ
+      - "3306:3306"                        # Host→Container
     volumes:
       - mysql_data:/var/lib/mysql
-    command: --default-authentication-plugin=mysql_native_password
+      - ./prd_mst.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./prd_mst_data.sql:/docker-entrypoint-initdb.d/2-data.sql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-plimit500?"]
+      timeout: 20s
+      retries: 10
 
-  # ----------------- FastAPI -----------------
+  # ----------------- FastAPI Backend -----------------
   backend:
     build:
-      context: ./backend                   # backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: pos-backend
     restart: unless-stopped
     env_file:
-      - ./backend/${ENV_FILE:-.env.development}
+      - ./backend/.env.development
     environment:
-      ENV_FILE: ${ENV_FILE:-.env.development}
+      ENV_FILE: .env.development
+      ENV: development
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
-      - "8000:8000"                        # ホスト→コンテナ (API)
+      - "8000:8000"                        # Host→Container (API)
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  # ----------------- Next.js -----------------
+  # ----------------- Next.js Frontend -----------------
   frontend:
     build:
-      context: ./frontend                  # frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile.dev
       args:
-        ENV_FILE: ${ENV_FILE:-.env.development}  # ← build-argsで切替可能
+        ENV_FILE: .env.development
     container_name: pos-frontend
     restart: unless-stopped
     env_file:
-      - ./frontend/${ENV_FILE:-.env.development}
+      - ./frontend/.env.development
     environment:
-      ENV_FILE: ${ENV_FILE:-.env.development}
+      ENV_FILE: .env.development
+      NODE_ENV: development
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
-      - "3000:3000"                        # ホスト→コンテナ (Web)
+      - "3000:3000"                        # Host→Container (Web)
+    volumes:
+      - ./frontend:/app                    # Hot reload for development
+      - /app/node_modules
+      - /app/.next
 
 volumes:
   mysql_data:
+    driver: local
+
+networks:
+  default:
+    name: pos-network

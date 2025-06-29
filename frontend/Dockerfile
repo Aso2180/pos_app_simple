@@ -1,30 +1,46 @@
+# frontend/Dockerfile - Azure Container Apps Production
 #####################  1) Build Stage  #####################
 ARG ENV_FILE=.env.production
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# 依存だけ先にコピーするとキャッシュが効く
+# Install dependencies first (better caching)
 COPY package*.json ./
-# もう一度宣言（実引数を受け取る）
+RUN npm ci --only=production
+
+# Copy environment file
 ARG ENV_FILE
-# ここで .env を取り込む
 COPY ${ENV_FILE} ./.env
-RUN npm ci          
-# アプリ本体をコピーしてビルド
+
+# Copy source and build
 COPY . .
-RUN npm run build  
+RUN npm run build
 
 #####################  2) Runtime Stage ####################
 FROM node:20-alpine AS runtime
 WORKDIR /app
 
-# 本番モード
+# Production environment
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
-# builder の成果物だけ取り込む
-COPY --from=builder /app .
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 nextjs
+
+# Copy built application
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# Switch to non-root user
+USER nextjs
+
+# Health check for Container Apps
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
 
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
